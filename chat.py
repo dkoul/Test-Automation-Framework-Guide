@@ -1,5 +1,4 @@
 import streamlit as st
-from streamlit_webrtc import webrtc_streamer, WebRtcMode
 import random
 import string
 
@@ -8,15 +7,28 @@ def random_id(length=6):
     return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
 
 # Session state to store user info
-if 'user_id' not in st.session_state:
-    st.session_state['user_id'] = random_id()
+if 'username' not in st.session_state:
+    st.session_state['username'] = ""
 
-st.title("Anonymous Chat App")
+st.title("Anonymous Text Chat App")
 st.write("Chat with strangers anonymously!")
 
-# Placeholder for WebRTC chat
-st.write("### Live Chat Room")
-webrtc_streamer(key="chat", mode=WebRtcMode.SENDRECV)
-st.write("You are chatting as: `" + st.session_state['user_id'] + "`")
+# Ask user for a name
+st.session_state['username'] = st.text_input("Enter your name:", st.session_state['username'])
 
-st.info("Simply refresh the page to get a new chat partner!")
+# Chat message storage
+if 'messages' not in st.session_state:
+    st.session_state['messages'] = []
+
+# Display chat messages
+st.write("### Chat Room")
+chat_box = st.empty()
+chat_box.markdown("\n".join(st.session_state['messages']))
+
+# Input field for new messages
+new_message = st.text_input("Type a message:")
+if st.button("Send") and new_message:
+    st.session_state['messages'].append(f"{st.session_state['username']}: {new_message}")
+    chat_box.markdown("\n".join(st.session_state['messages']))
+
+st.info("Simply refresh the page to clear the chat!")
